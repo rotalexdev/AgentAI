@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build, test and publish API docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          # Generates the wrapper (including gradle-wrapper.jar, which is a
+          # binary artifact that cannot be committed by hand) on first run.
+          gradle-version: "8.11.1"
+          generate-wrapper: true
+
+      - name: Run all JVM tests (core + agent-runtime)
+        run: ./gradlew test --no-daemon
+
+      - name: Assemble Android modules
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Generate API docs (Dokka)
+        run: ./gradlew dokkaHtmlMultiModule --no-daemon
+
+      - name: Upload API docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agentai-api-docs
+          path: build/docs/api
+          retention-days: 14

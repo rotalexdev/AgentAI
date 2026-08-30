@@ -1,0 +1,46 @@
+version: 2
+updates:
+  # Gradle dependencies — tracks gradle/libs.versions.toml (version catalog)
+  # plus build files. Opens one PR per dependency when a new version is
+  # released; CI (test + assembleDebug) validates each PR.
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      # Group patch/minor bumps together to reduce PR noise; major bumps stay
+      # separate so they get individual review.
+      minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      # Compose BOM + Kotlin move in lockstep; keep them reviewable as a unit.
+      compose-and-kotlin:
+        patterns:
+          - "androidx.compose*"
+          - "org.jetbrains.kotlin*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+
+  # GitHub Actions themselves.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "chore(ci)"

@@ -1,0 +1,81 @@
+name: android-build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: android-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NDK_VERSION: "27.2.12479018"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager --update >/dev/null
+          sdkmanager --install "platforms;android-37.1" "platforms;android-37.0" "build-tools;37.0.0" "ndk;${{ env.NDK_VERSION }}"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Restore signing key
+        id: signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "KEYSTORE_BASE64 is not set; the release build will be unsigned."
+            exit 0
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > /tmp/release.keystore
+          printf 'keyAlias=%s\nkeyPassword=%s\nstorePassword=%s\n' \
+            "$KEY_ALIAS" "$KEY_PASSWORD" "$KEYSTORE_PASSWORD" > /tmp/sign.properties
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build release APKs
+        run: ./gradlew :app:assembleRelease --no-daemon
+
+      - name: Verify APK signatures
+        if: steps.signing.outputs.ready == 'true'
+        run: |
+          apksigner="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/apksigner"
+          for apk in app/build/outputs/apk/*/release/*.apk; do
+            echo "== $apk =="
+            "$apksigner" verify --print-certs "$apk"
+          done
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: app/build/outputs/apk/*/release/*.apk
+          if-no-files-found: error

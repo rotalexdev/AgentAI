@@ -1,0 +1,21 @@
+# Toolchain / build outputs
+.gradle/
+build/
+local.properties
+captures/
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Kotlin
+.kotlin/
+
+# OS
+.DS_Store
+
+# Evaluation results (stored separately, never committed — spec 0009 E5)
+evaluation-results/
