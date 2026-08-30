@@ -1,11 +1,10 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "com.agentai.app.tools"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26
