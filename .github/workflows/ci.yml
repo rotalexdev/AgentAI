@@ -25,7 +25,7 @@ jobs:
           java-version: "17"
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
         with:
           # Generates the wrapper (including gradle-wrapper.jar, which is a
           # binary artifact that cannot be committed by hand) on first run.
