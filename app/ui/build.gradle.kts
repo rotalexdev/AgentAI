@@ -17,10 +17,22 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 
     buildFeatures {
         compose = true
+    }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true // Robolectric
+            all { it.useJUnitPlatform() }
+        }
+        testLogging {
+            events("passed", "failed", "skipped")
+        }
     }
 }
 
@@ -45,9 +57,4 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotlinx.coroutines.test)
     testRuntimeOnly(libs.junit.platform.launcher)
-}
-
-tasks.test {
-    useJUnitPlatform()
-    testLogging { events("passed", "failed", "skipped") }
 }
