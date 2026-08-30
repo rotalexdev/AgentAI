@@ -9,7 +9,7 @@ androidxTestCore = "1.7.0"
 coreKtx = "1.19.0"
 lifecycle = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.12.01"
+composeBom = "2026.08.00"
 dokka = "2.2.0"
 
 [libraries]
