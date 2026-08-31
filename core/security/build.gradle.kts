@@ -9,6 +9,7 @@ kotlin {
 
 dependencies {
     api(project(":core:tool-contract"))
+    api(project(":core:tool-registry"))
     implementation(libs.kotlinx.coroutines.core)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotlinx.coroutines.test)

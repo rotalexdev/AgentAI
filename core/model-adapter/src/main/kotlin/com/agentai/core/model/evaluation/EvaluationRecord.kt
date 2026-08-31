@@ -36,7 +36,7 @@ data class EvaluationRecord(
     val category: EvaluationCategory,
     val prompt: String,
     val expectedTool: String? = null,
-    val expectedArgs: Map<String, Any?>? = null,
+    @Contextual val expectedArgs: Map<String, Any?>? = null,
     val expectedRejection: String? = null,
     val notes: String? = null,
 )
