@@ -28,9 +28,7 @@ android {
             isIncludeAndroidResources = true // Robolectric
             all { it.useJUnitPlatform() }
         }
-        testLogging {
-            events("passed", "failed", "skipped")
-        }
+        
     }
 }
 
