@@ -62,7 +62,7 @@ jobs:
           echo "ready=true" >> "$GITHUB_OUTPUT"
 
       - name: Build release APKs
-        run: ./gradlew :app:assembleRelease --no-daemon
+        run: ./gradlew :app:app:assembleRelease --no-daemon
 
       - name: Verify APK signatures
         if: steps.signing.outputs.ready == 'true'
